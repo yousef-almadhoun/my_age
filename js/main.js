@@ -33,7 +33,7 @@ function updateGroup(group, n, flip){
 }
 
 function setTime(flip){
-    var period = calculatePeriod(new Date("1999/07/07 15:0:0"), new Date());
+    var period = calculatePeriod(new Date("1999/07/07 16:0:0"), new Date());
     updateGroup('year', period.years, flip);
 	updateGroup('month', period.months, flip);
 	updateGroup('day', period.days, flip);
@@ -60,14 +60,44 @@ function calculatePeriod(t1, t2) {
       result[unit.name] = rest;
       dt = total;
   }
-  result.days = Math.floor(((dt % 365) / 30) % 30);
-  result.months = Math.floor(((dt % 365) / 30));
-  result.years = Math.floor(dt / 365);
+
+  var yearNow = t2.getYear();
+  var monthNow = t2.getMonth();
+  var dateNow = t2.getDate();
+
+  var yearDob = t1.getYear();
+  var monthDob = t1.getMonth();
+  var dateDob = t1.getDate();
+  
+  yearAge = yearNow - yearDob;
+
+  if (monthNow >= monthDob) {
+	var monthAge = monthNow - monthDob;
+	result.months = monthAge;
+  } else {
+	yearAge--;
+	var monthAge = 12 + monthNow - monthDob;
+	result.months = monthAge;
+  }
+
+  if (dateNow >= dateDob) {
+	var dateAge = dateNow - dateDob;
+	result.days = dateAge;
+  } else {
+    monthAge--;
+    var dateAge = 31 + dateNow - dateDob;
+	result.days = dateAge;
+    if (monthAge < 0) {
+      monthAge = 11;
+      yearAge--;
+    }
+  }
+
+  result.years = Math.floor(dt / 365.25);
     return result;
 }
 
 $(document).ready(function(){
-	//$('body').css('backgroundImage', 'url(images/bg_body.jpg)');
 	setTime(false);
 	setInterval(function(){
 		setTime(true);
